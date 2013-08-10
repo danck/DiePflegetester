@@ -1,0 +1,22 @@
+<% provide(:title, 'Start') %>
+
+<div class="progress progress-striped active">
+  <div class="progress-bar" style="width: 45%"></div>
+</div>
+
+<div class="progress progress-striped active">
+  <div class="progress-bar" style="width: 45%"></div>
+</div>
+
+<div class="progress progress-striped active">
+  <div class="progress-bar" style="width: 45%"></div>
+</div>
+
+
+
+
+<% #if signed_in? %>
+	<% #render 'shared/home_for_signed_in' %>
+<% #else %>
+	<% #render 'shared/home_for_not_signed_in' %>
+<% #end %>

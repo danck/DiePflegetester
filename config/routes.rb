@@ -1,4 +1,9 @@
 Pflegetester::Application.routes.draw do
+  root  'static_pages#start'
+  get "static_pages/start"
+  get "static_pages/hilfe"
+  get "static_pages/kontakt"
+  get "static_pages/impressum"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
