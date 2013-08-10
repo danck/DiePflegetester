@@ -4,7 +4,7 @@ ruby '2.0.0'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.0'
 
-# Use sqlite3 as the database for Active Record
+# Use postgres as the database for Active Record
 gem 'pg', '0.15.1'
 
 # Use SCSS for stylesheets
@@ -29,7 +29,13 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 
 # Twitter CSS/SASS framework
-gem 'bootstrap-sass','2.3.2.0'
+# gem 'bootstrap-sass','2.3.2.0'
+gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass', branch: '3'
+
+# Experimental Bootstrap 3 => http://gorails.com/blog/trying-out-bootstrap-3-0
+# gem 'anjlab-bootstrap-rails', :require => 'bootstrap-rails',
+#                               :github => 'anjlab/bootstrap-rails',
+#                               :branch => '3.0.0'
 
 # Fake models beleben
 gem 'faker', '1.1.2'
