@@ -4,7 +4,7 @@ require './spec/requests/shared_static_pages.rb'
 describe "Static Pages" do
 	subject { page }
 
-	it "Should have the right generic links in the root Layout" do
+	it "should have the right generic links in the root Layout" do
 		visit root_path
 		expect(page).to have_title full_title 'Start' # utility methode aus support/utilities.rb
 
@@ -35,6 +35,5 @@ describe "Static Pages" do
 			expect(page).to have_title(full_title('Hilfe'))
 			expect(page). to have_content 'Hilfe'
 		end
-
 	end
 end

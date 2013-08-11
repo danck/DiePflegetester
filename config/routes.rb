@@ -5,6 +5,9 @@ Pflegetester::Application.routes.draw do
   get "/kontakt"            => 'static_pages#kontakt'
   get "/impressum"          => 'static_pages#impressum'
 
+  # Benutzer
+  get "/registrieren"       => 'users#new'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
