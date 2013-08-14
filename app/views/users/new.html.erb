@@ -3,3 +3,23 @@
 <div class="page-header">
   <h1>Erstellen Sie Ihr Konto <small>blablal b</small></h1>
 </div>
+
+<div class="row">
+	<div class="form-horizontal" role="form">
+		<%= form_for @user, role: "form-group" do |f| %>
+			<%= render 'shared/error_messages' %>
+
+			<%= f.text_field :nicname, class: "form-control input-lg", placeholder: "Alias" %>
+
+			<%= f.text_field :name, class: "form-control input-lg", placeholder: "Name" %>
+
+			<%= f.text_field :email, class: "form-control input-lg", placeholder: "Email" %>
+
+			<%= f.password_field :password, class: "form-control input-lg", placeholder: "Passwort" %>
+
+			<%= f.password_field :password_confirmation, class: "form-control input-lg", placeholder: "Passwort bestätigen" %>
+
+			<%= f.submit "Jetzt registrieren", class: "btn btn-large btn-primary" %>
+		<% end %>
+	</div>
+</div>

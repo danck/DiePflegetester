@@ -1,0 +1,13 @@
+<% provide(:title, @user.nicname) %>
+<h1><%= @user.nicname %></h1>
+TODO: Sicherstellen, dass nur oeffentliche Informationen fuer alle verfuegbar sind 
+<div class="row">
+	<div class="col-6 col-sm-4 col-lg-4 user-aside">
+		<section>
+			<h1>
+				<%= gravatar_for @user %>
+				<%= @user.nicname %>
+			</h1>
+		</section>
+	</div>
+</div>

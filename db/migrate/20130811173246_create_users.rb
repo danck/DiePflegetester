@@ -4,7 +4,7 @@ class CreateUsers < ActiveRecord::Migration
       t.string :alias
       t.string :name
       t.string :email
-      t.string :role
+      t.string :role, default: "benutzer"
 
       t.timestamps
     end

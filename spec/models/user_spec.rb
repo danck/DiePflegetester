@@ -4,14 +4,14 @@ describe User do
 	before { @user = User.new(
 		name: "Example User", 
 		email: "user@example.com", 
-		alias: "Wurst",
+		nicname: "Wurst",
 		password: "hein1#richt",
 		password_confirmation: "hein1#richt",
 		role: "besucher") }
 
 	subject { @user }
 
-	it { should respond_to :alias }
+	it { should respond_to :nicname }
 	it { should respond_to :email }
 	it { should respond_to :name }
 	it { should respond_to :password }
@@ -21,8 +21,8 @@ describe User do
 
 	it { should be_valid }
 
-	describe "when alias is not present" do
-		before { @user.alias = " " }
+	describe "when nicname is not present" do
+		before { @user.nicname = " " }
 		it { should_not be_valid}
 	end
 
@@ -31,13 +31,13 @@ describe User do
 		it { should_not be_valid}
 	end
 
-	describe "when role is not present" do
-		before { @user.role = " " }
-		it { should_not be_valid}
-	end
+	# describe "when role is not present" do
+	# 	before { @user.role = " " }
+	# 	it { should_not be_valid}
+	# end
 
-	describe "when alias is too long" do
-		before { @user.alias = "a"*101 }
+	describe "when nicname is too long" do
+		before { @user.nicname = "a"*101 }
 		it { should_not be_valid }
 	end
 
@@ -67,7 +67,7 @@ describe User do
 	end
 
 	describe "when role is too long" do
-		before { @user.alias = "a"*101 }
+		before { @user.nicname = "a"*101 }
 		it { should_not be_valid }
 	end
 
@@ -81,10 +81,10 @@ describe User do
   		it { should be_invalid }
 	end
 
-	describe "when alias already taken" do
+	describe "when nicname already taken" do
   		before do
   			user_with_dublette_alias = @user.dup
-    	  	user_with_dublette_alias.attributes = { alias: @user.alias.upcase }
+    	  	user_with_dublette_alias.attributes = { nicname: @user.nicname.upcase }
   			user_with_dublette_alias.save
   		end
 
