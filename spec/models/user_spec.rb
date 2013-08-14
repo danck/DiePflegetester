@@ -31,6 +31,11 @@ describe User do
 		it { should_not be_valid}
 	end
 
+	describe "remember_token" do
+		before { @user.save }
+		its(:remember_token ) { should_not be_blank }
+	end
+
 	# describe "when role is not present" do
 	# 	before { @user.role = " " }
 	# 	it { should_not be_valid}

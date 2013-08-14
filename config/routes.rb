@@ -1,6 +1,8 @@
 Pflegetester::Application.routes.draw do
   # resources :users
+  # resources :sessions, only: [:new, :create, :destroy]
 
+  # Static
   root  'static_pages#start'
   get "/start"              => 'static_pages#start'
   get "/hilfe"              => 'static_pages#hilfe'
@@ -12,6 +14,11 @@ Pflegetester::Application.routes.draw do
   get "/benutzer/:id"       => 'users#show',  as: :user
   get "/benutzer"           => 'users#index', as: :users
   post "/benutzer"           => 'users#create'
+
+  # Sessions
+  match '/anmelden',  to: 'sessions#new',         via: 'get'
+  match '/anmelden',  to: 'sessions#create',      via: 'post'  
+  match '/abmelden',  to: 'sessions#destroy',     via: 'delete'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

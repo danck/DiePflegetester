@@ -1,0 +1,15 @@
+<% provide(:title, "Anmelden") %>
+<h1>Anmelden</h1>
+
+<div class="row">
+	<div class="form-horizontal" role="form">
+		<%= form_for :session, url: anmelden_path do |f| %>
+
+			<%= f.text_field :email, class: "form-control input-lg", placeholder: "Email" %>
+
+			<%= f.password_field :password, class: "form-control input-lg", placeholder: "Passwort" %>
+
+			<%= f.submit "Anmelden", class: "btn btn-large btn-primary" %>		
+		<% end %>
+	</div>
+</div>

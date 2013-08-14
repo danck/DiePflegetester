@@ -27,9 +27,26 @@
 				<li>
 					<a href="#">Forum</a>
 				</li>
+				<% if helper_signed_in? %>
+		          <li><%= link_to "Users", '#' %></li>
+		            <li id="fat-menu" class="dropdown">
+		              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		                <%= helper_current_user.nicname %> <b class="caret"></b>
+		              </a>
+		              <ul class="dropdown-menu">
+		                <li><%= link_to "Profil", helper_current_user %></li>
+		                <li><%= link_to "Einstellungen", '#' %></li>
+		                <li class="divider"></li>
+		                <li>
+		                  <%= link_to "Abmelden", abmelden_path, method: "delete" %>
+		                </li>
+		              </ul>
+		            </li>
+				<% else %>
 				<li>
      				<%= link_to "Anmelden", registrieren_path %>
 				</li>
+				<% end %>
 			</ul>
 		</div>
 	</div>
