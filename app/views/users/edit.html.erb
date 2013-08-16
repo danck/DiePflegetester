@@ -1,0 +1,47 @@
+<% provide(:title, "Profil bearbeiten") %>
+<div class="page-header">
+	<h1>Profil bearbeiten</h1>
+</div>
+
+<div class="container">
+	<div class="form-horizontal" role="form">
+		<%= form_for(@user) do |f| %>
+			<%= render 'shared/error_messages' %>
+
+			<div class="input-group">
+				<span class="input-group-addon">Alias</span>
+				<%= f.text_field :nicname, class: "form-control input-lg" %>
+			</div>
+
+			<div class="input-group">
+				<span class="input-group-addon">Name</span>
+				<%= f.text_field :name, class: "form-control input-lg" %>
+			</div>
+
+			<div class="input-group">
+				<span class="input-group-addon">Email</span>
+				<%= f.email_field :email, class: "form-control input-lg" %>
+			</div>
+
+
+			<div class="input-group">
+				<span class="input-group-addon">Passwort</span>
+				<%= f.password_field :password, class: "form-control input-lg"%>
+			</div>
+
+			<div class="input-group">
+				<span class="input-group-addon">Passwort bestaetigen</span>
+				<%= f.password_field :password_confirmation, class: "form-control input-lg" %>
+			</div>
+
+			<% if @current_user && helper_current_user.role == "admin" %>
+				<div class="input-group">
+					<span class="input-group-addon">Rolle</span>
+					<%= f.text_field :role, class: "form-control input-lg" %>
+				</div>
+			<% end %>
+
+			<%= f.submit "Speichern", class: "btn btn-large btn-primary" %>
+		<% end %>
+	</div>
+</div>

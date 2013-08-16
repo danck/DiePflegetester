@@ -4,6 +4,28 @@ describe "AuthenticationPages" do
   
   	subject { page }
 
+  	describe "authorization" do
+
+  		describe "for non-signed-in users" do
+  			let(:user) { FactoryGirl.create(:user) }
+
+  			describe "in the Users controller" do
+
+  				describe "visiting the edit page" do
+  					before { visit edit_user_path(user) }
+  					it { should have_title 'Anmelden'}
+  				end
+
+  				describe "submitting the update action" do
+  					before do 
+  						patch user_path(user)
+  					end
+  					specify { expect(response).to redirect_to(anmelden_path)}
+  				end
+  			end
+  		end
+  	end
+
   	describe "signin page" do
 	  	before { visit anmelden_path }
 
