@@ -44,6 +44,11 @@ describe "UserPages" do
 	    		new_count = User.count
 	    		expect(new_count).to eq old_count+1
 			end
+
+			describe "after successful anmeldung" do
+				before { click_button submit }
+				it { should have_link 'Profil' }
+			end
 		end
 
 		describe "with invalid information" do

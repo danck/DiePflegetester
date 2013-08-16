@@ -5,8 +5,8 @@ class SessionsController < ApplicationController
 	end
 
 	def create
-		@user = User.find_by(email: params[:session][:email].downcase)
-		if @user && @user.authenticate(params[:session][:password])
+		@user = User.find_by(email: params[:email].downcase)
+		if @user && @user.authenticate(params[:password])
 			helper_sign_in @user
 			redirect_to @user
 		else
@@ -16,5 +16,7 @@ class SessionsController < ApplicationController
 	end
 
 	def destroy
+		helper_sign_out
+		redirect_to root_url
 	end
 end

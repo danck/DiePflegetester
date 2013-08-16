@@ -31,6 +31,11 @@ describe "AuthenticationPages" do
 			end
 
 			it { should have_link 'Abmelden'}
+
+			describe "after successful signout" do
+				before {click_link 'Abmelden'}
+				it { should have_link 'Anmelden'}
+			end
 		end
 	end
 end

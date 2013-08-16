@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  include SessionsHelper
+
   def new
   	@user = User.new
   end
@@ -11,7 +13,7 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
   	@user.role = "Benutzer"
     if @user.save
-		  # sign_in @user
+		  helper_sign_in @user
 		  flash[:success] = "Willkommen bei <i>Die Pflegetester</i>".html_safe
 		  redirect_to @user
     else

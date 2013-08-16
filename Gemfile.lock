@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/thomas-mcdonald/bootstrap-sass.git
-  revision: 280c3bc33e31f61e476d3cb2ea7b6c8045c9007a
+  revision: 5bf533b803e92042c846dbf80faa4411951bb890
   branch: 3
   specs:
     bootstrap-sass (3.0.0.0)
@@ -80,7 +80,7 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    mime-types (1.23)
+    mime-types (1.24)
     mini_portile (0.5.1)
     minitest (4.7.5)
     multi_json (1.7.9)
