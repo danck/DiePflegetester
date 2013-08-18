@@ -9,7 +9,7 @@ end
 
 def sign_in(user, options={})
 	if options[:no_capybara]
-		# Sign-in does not work as below without Capybara, so:
+		# Sign-in does not work as below with Capybara, so:
 		remember_token = User.new_remember_token
 		cookies[:remember_token] = remember_token
 		user.update_attribute(:remember_token, User.encrypt(remember_token))

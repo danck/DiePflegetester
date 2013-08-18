@@ -5,15 +5,16 @@
 	
 </div>
 
-<div class="second-top-bar navbar navbar-inverse navbar-fixed-top bs-docs-nav">
+<header class="second-top-bar navbar navbar-inverse navbar-fixed-top bs-docs-nav">
 	<div class="container">
 		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
+			<span class="sr-only">Toggle navigation</span>
+      		<span class="icon-bar"></span>
+      		<span class="icon-bar"></span>
+      		<span class="icon-bar"></span>
     </button>
 		<%= link_to "Die Pflegetester", root_path, class: "navbar-brand pull-left" %>
-		<div class="bs-navbar-collapse nav-collapse-scrollable">
+		<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
 			<ul class="nav navbar-nav pull-right">
 				<li>
 					<%= link_to "Start", root_path %>
@@ -48,6 +49,6 @@
 				</li>
 				<% end %>
 			</ul>
-		</div>
+		</nav>
 	</div>
-</div>
+</header>

@@ -1,0 +1,12 @@
+<% provide(:title, 'Benutzerverwaltung') %>
+<h1>All users</h1>
+
+<%= will_paginate @users, renderer: BootstrapPagination::Rails, bootstrap: 3  %>
+
+<ul class="users">
+  <% @users.each do |user| %>
+    <%= render "listed_user", user: user %>
+  <% end %>
+</ul>
+
+<%= will_paginate @users, renderer: BootstrapPagination::Rails, bootstrap: 3  %>

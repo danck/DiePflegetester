@@ -21,8 +21,22 @@ module SessionsHelper
 		@current_user ||= User.find_by(remember_token: remember_token)
 	end
 
+	def helper_current_user?(user)
+		user == helper_current_user
+	end
+
 	def helper_sign_out
 		@current_user = nil
 		cookies.delete(:remember_token)
+	end
+
+	def helper_redirect_back_or(default)
+		redirect_to(session[:return_to] || default)
+		session.delete(:return_to)
+	end
+
+	def helper_store_location
+		session[:return_to] = request.url
+		# puts request.inspect
 	end
 end

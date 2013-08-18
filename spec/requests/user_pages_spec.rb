@@ -114,4 +114,18 @@ describe "UserPages" do
 			end
 		end
 	end
+
+	# Nicht fuer Normale Nutzer!!
+	# describe "pagination" do
+	# 	before(:all)	{ 30.times { FactoryGirl.create(:users)} }
+	# 	after(:all)		{ User.delete_all }
+
+	# 	it { should have_selector 'ul pagination' }
+
+	# 	it "should list each user" do
+	# 		User.paginate(page: 1) do |user|
+	# 			expect(page).to have_selector('li', text: user.name)
+	# 		end
+	# 	end
+	# end
 end

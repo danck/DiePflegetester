@@ -30,19 +30,20 @@ gem 'jbuilder', '~> 1.2'
 
 # Twitter CSS/SASS framework
 # gem 'bootstrap-sass','2.3.2.0'
-gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass', branch: '3'
+# gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass', branch: '3'
+# gem 'bootstrap-sass-rails'
 
 # Experimental Bootstrap 3 => http://gorails.com/blog/trying-out-bootstrap-3-0
-# gem 'anjlab-bootstrap-rails', :require => 'bootstrap-rails',
-#                               :github => 'anjlab/bootstrap-rails',
-#                               :branch => '3.0.0'
+gem 'anjlab-bootstrap-rails', :require => 'bootstrap-rails',
+                              :github => 'anjlab/bootstrap-rails',
+                              :branch => '3.0.0'
 
 # Fake models beleben
 gem 'faker', '1.1.2'
 
 gem 'will_paginate', '3.0.4'
 
-gem 'bootstrap-will_paginate', '0.0.9'
+gem 'will_paginate-bootstrap'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.

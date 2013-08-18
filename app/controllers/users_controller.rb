@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:edit, :update, :show]
+  before_action :signed_in_user,  only: [:edit, :update, :show, :index]
+  before_action :correct_user,    only: [:edit, :update, :show]
 
   include SessionsHelper
 
@@ -25,17 +26,17 @@ class UsersController < ApplicationController
   end
 
   def index
-    if @current_user && helper_current_user.role == "admin"
+    if helper_current_user.role == "admin"
       # show the index
-      render 'FEHLT NOCH'
+      @users = User.paginate(page: params[:page], per_page: 10)
     else
       # redirect and show error message
-      render "FEHLT NOCH"
+      redirect_to root_url
     end
   end
 
   def edit
-    @user = User.find(params[:id])
+    # User finden wird in der Before-action 'correct_user' erledigt
   end
 
   def update
@@ -68,7 +69,13 @@ class UsersController < ApplicationController
     def signed_in_user
       unless helper_signed_in?
         flash[:notice] = "Bitte anmelden"
-        redirect_to anmelden_url, notice: "Bitte anmelden"
+        helper_store_location
+        redirect_to anmelden_url # , notice: "bitte anmelden"
       end
+    end
+
+    def correct_user
+      @user = User.find(params[:id])
+      redirect_to(root_url) unless helper_current_user?(@user) || helper_current_user.role == 'admin'
     end
 end
