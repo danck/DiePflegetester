@@ -1,0 +1,622 @@
+# coding: utf-8
+# Based on convert script from vwall/compass-twitter-bootstrap gem.
+# https://github.com/vwall/compass-twitter-bootstrap/blob/master/build/convert.rb
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this work except in compliance with the License.
+# You may obtain a copy of the License in the LICENSE file, or at:
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+require 'open-uri'
+require 'json'
+require 'strscan'
+require 'forwardable'
+require 'term/ansicolor'
+require 'fileutils'
+
+class Converter
+  extend Forwardable
+
+  GIT_DATA = 'https://api.github.com/repos'
+  GIT_RAW  = 'https://raw.github.com'
+
+  def initialize(branch)
+    @repo       = 'twbs/bootstrap'
+    @repo_url   = "https://github.com/#@repo"
+    @branch     = branch || 'master'
+    @branch_sha = get_branch_sha
+    @save_at    = { js: 'vendor/assets/javascripts/bootstrap', scss: 'vendor/assets/stylesheets/bootstrap' }
+    @save_at.each { |_,v| FileUtils.mkdir_p(v) }
+    @logger     = Logger.new(repo: @repo_url, branch: @branch, branch_sha: @branch_sha, save_at: @save_at)
+  end
+
+  def_delegators :@logger, :log_status, :log_downloading, :log_processing, :log_transform, :log_processed, :log_http_get, :silence_log
+
+  def process
+    process_stylesheet_assets
+    process_javascript_assets
+    store_version
+  end
+
+  VARARG_MIXINS = %w(transition transition-transform box-shadow)
+  def process_stylesheet_assets
+    log_status "Processing stylesheets..."
+    files = read_files('less', bootstrap_less_files)
+    @mixins = get_mixin_names files['mixins.less']
+    files.each do |name, file|
+      log_processing name
+      case name
+      when 'bootstrap.less'
+        file = replace_file_imports(file)
+      when 'mixins.less'
+        file = replace_vars(file)
+        file = replace_escaping(file)
+        file = replace_mixin_definitions(file)
+        file = replace_mixins(file)
+        file = flatten_mixins(file, '#gradient', 'gradient')
+        file = varargify_mixin_definitions(file, *VARARG_MIXINS)
+        file = deinterpolate_vararg_mixins(file)
+        file = parameterize_mixin_parent_selector file, 'responsive-(in)?visibility'
+        file = parameterize_mixin_parent_selector file, 'input-size'
+        file = replace_ms_filters(file)
+        file = replace_all file, /\.\$state/, '.#{$state}'
+      when 'responsive-utilities.less'
+        file = convert_to_scss(file)
+        file = apply_mixin_parent_selector(file, '\.(visible|hidden)')
+        file = replace_rules(file, '  @media') { |r| unindent(r, 2) }
+      when 'utilities.less'
+        file = replace_mixin_definitions(file)
+        file = convert_to_scss(file)
+      when 'variables.less'
+        file = convert_to_scss(file)
+        file = insert_default_vars(file)
+      when 'close.less'
+        file = convert_to_scss(file)
+        # extract .close { button& {...} } rule
+        file = extract_nested_rule file, 'button&'
+      when 'forms.less'
+        file = convert_to_scss(file)
+        file = extract_nested_rule file, 'textarea&'
+        file = apply_mixin_parent_selector(file, '\.input-(?:sm|lg)')
+      when 'navbar.less'
+        file = convert_to_scss(file)
+        file = replace_all file, /(\s*)\.navbar-(right|left)\s*\{\s*@extend\s*\.pull-(right|left);\s*/, "\\1.navbar-\\2 {\\1  float: \\2 !important;\\1"
+        file = replace_all file, /(\s*)@extend \.pull-right-dropdown-menu;/, "\\1right: 0;\\1left: auto;"
+      when 'tables.less'
+        file = convert_to_scss(file)
+        file = replace_all file, /(@include\s*table-row-variant\()(\w+)/, "\\1'\\2'"
+      when 'list-group.less'
+        file = convert_to_scss(file)
+        file = extract_nested_rule file, 'a&'
+      else
+        file = convert_to_scss(file)
+      end
+
+      name = name.sub(/\.less$/, '.scss')
+      save_at = @save_at[:scss]
+      path = "#{save_at}/#{'_' unless name == 'bootstrap.scss'}#{name}"
+      save_file(path, file)
+      log_processed File.basename(path)
+    end
+  end
+
+  def store_version
+    path = 'lib/bootstrap-sass/version.rb'
+    content = File.read(path).sub(/BOOTSTRAP_SHA\s*=\s*['"][\w]+['"]/, "BOOTSTRAP_SHA = '#@branch_sha'")
+    File.open(path, 'w') { |f| f.write(content) }
+  end
+
+  def process_javascript_assets
+    log_status "Processing javascripts..."
+    save_at = @save_at[:js]
+    read_files('js', bootstrap_js_files).each do |name, file|
+      save_file("#{save_at}/#{name}", file)
+    end
+    log_processed "#{bootstrap_js_files * ' '}"
+
+    log_status "Updating javascript manifest"
+    content = ''
+    bootstrap_js_files.each do |name|
+      name = name.gsub(/\.js$/, '')
+      content << "//= require bootstrap/#{name}\n"
+    end
+    path = "vendor/assets/javascripts/bootstrap.js"
+    save_file(path, content)
+    log_processed path
+  end
+
+  private
+
+  def read_files(path, files)
+    contents  = {}
+    full_path = "#{GIT_RAW}/#@repo/#@branch_sha/#{path}"
+    log_downloading files, full_path
+    files.map do |name|
+      Thread.start {
+        content = open("#{full_path}/#{name}").read
+        Thread.exclusive {
+          contents[name] = content
+        }
+      }
+    end.each(&:join)
+    contents
+  end
+
+  # get sha of the branch (= the latest commit)
+  def get_branch_sha
+    @branch_sha ||= %x[git ls-remote '#@repo_url' | awk '/#@branch/ {print $1}'].chomp
+  end
+
+  # Get the sha of a dir
+  def get_tree_sha(dir)
+    get_trees['tree'].find { |t| t['path'] == dir }['sha']
+  end
+
+  def get_trees
+    @trees ||= get_json("#{GIT_DATA}/#@repo/git/trees/#@branch_sha")
+  end
+
+  def bootstrap_less_files
+    @bootstrap_less_files ||= begin
+      files = get_json "#{GIT_DATA}/#@repo/git/trees/#{get_tree_sha('less')}"
+      files['tree'].select{|f| f['type'] == 'blob' && f['path'] =~ /.less$/ }.map{|f| f['path'] }
+    end
+  end
+
+  def bootstrap_js_files
+    @bootstrap_js_files ||= begin
+      files = get_json "#{GIT_DATA}/#@repo/git/trees/#{get_tree_sha('js')}"
+      files = files['tree'].select { |f| f['type'] == 'blob' && f['path'] =~ /.js$/ }.map { |f| f['path'] }
+      files.sort_by { |f|
+        case f
+          # tooltip depends on popover and must be loaded earlier
+          when /tooltip/ then 1
+          when /popover/ then 2
+          else
+            0
+        end
+      }
+    end
+  end
+
+  def get_mixin_names(file)
+    mixins      = []
+    file.scan(/\.([\w-]+)\(.*\)\s?{?/) do |mixin|
+      mixins << mixin.first
+    end
+    mixins
+  end
+
+  def convert_to_scss(file)
+    file = replace_vars(file)
+    file = replace_mixins(file)
+    file = replace_less_extend(file)
+    file = replace_spin(file)
+    file = replace_image_urls(file)
+    file = replace_image_paths(file)
+    file = replace_escaping(file)
+    file = convert_less_ampersand(file)
+    file = deinterpolate_vararg_mixins(file)
+    file
+  end
+
+  def save_file(path, content, mode='w')
+    File.open(path, mode) { |file| file.write(content) }
+  end
+
+  # @import "file.less" to "#{target_path}file;"
+  def replace_file_imports(less, target_path = 'bootstrap/')
+    log_transform target_path
+    less.gsub %r(@import ["|']([\w-]+).less["|'];),
+              %Q(@import "#{target_path}\\1";)
+  end
+
+  def replace_all(file, regex, replacement = nil, &block)
+    log_transform regex, replacement
+    file.gsub(regex, replacement, &block)
+  end
+
+  # @mixin a() { tr& { color:white } }
+  # to:
+  # @mixin a($parent) { tr#{$parent} { color: white } }
+  def parameterize_mixin_parent_selector(file, rule_sel)
+    log_transform rule_sel
+    param = '$parent'
+    replace_rules(file, '^[ \t]*@mixin\s*' + rule_sel) do |mxn_css|
+      mxn_css.sub! /(?=@mixin)/, "// [converter] $parent hack\n"
+      # insert param into mixin def
+      mxn_css.sub!(/(@mixin [\w-]+)\(([\$\w\-,\s]*)\)/) { "#{$1}(#{param}#{', ' if $2 && !$2.empty?}#{$2})" }
+      # wrap properties in #{$parent} { ... }
+      replace_properties(mxn_css) { |props| "  \#{#{param}} { #{props.strip} }\n  " }
+      # change nested& rules to nested#{$parent}
+      replace_rules(mxn_css, /.*[^\s ]&/) { |rule| replace_in_selector rule, /&/, "\#{#{param}}" }
+    end
+  end
+
+  # extracts rule immediately after it's parent, and adjust the selector
+  # .x { textarea& { ... }}
+  # to:
+  # .x { ... }
+  # textarea.x { ... }
+  def extract_nested_rule(css, selector, new_selector = nil)
+    matches = []
+    # first find the rules, and remove them
+    css     = replace_rules(css, "\s*#{selector}", comments: true) { |rule, pos|
+      matches << [rule, pos]
+      new_selector ||= "#{get_selector(rule).sub(/&$/, '')}#{selector_for_pos(css, pos.begin)}"
+      indent "// [converter] extracted #{get_selector(rule)} to #{new_selector}", indent_width(rule)
+    }
+    log_transform selector, new_selector
+    # replace rule selector with new_selector
+    matches.each do |m|
+      m[0].sub! /(#{COMMENT_RE}*)^(\s*).*?(\s*){/m, "\\1\\2#{new_selector}\\3{"
+    end
+    replace_substrings_at css,
+                          matches.map { |_, pos| close_brace_pos(css, pos.begin, 1) + 1 },
+                          matches.map { |rule, _| "\n\n" + unindent(rule) }
+  end
+
+  # .visible-sm { @include responsive-visibility() }
+  # to:
+  # @include responsive-visibility('.visible-sm')
+  def apply_mixin_parent_selector(file, rule_sel)
+    log_transform rule_sel
+    replace_rules file, "(\s*)#{rule_sel}" do |rule|
+      next rule unless rule =~ /{\s*@include.*?;\s*}/m
+      rule =~ /\A\s+/ # keep indentation
+      # unwrap
+      rule = $~.to_s + rule.sub(/(#{COMMENT_RE}*)(#{SELECTOR_RE})\{(.*)\}/m, '\3')
+      cmt, sel  = $1, $2.strip
+      # inject param
+      rule.gsub(/(@include [\w-]+)\(([\$\w\-,\s]*)\)/) { "#{cmt}#{$1}('#{sel}'#{', ' if $2 && !$2.empty?}#{$2})"} .strip
+    end
+  end
+
+  # #gradient > { @mixin horizontal ... }
+  # to:
+  # @mixin gradient-horizontal
+  def flatten_mixins(file, container, prefix)
+    log_transform container, prefix
+    replace_rules file, Regexp.escape(container) do |mixins_css|
+      unindent unwrap_rule_block(mixins_css).gsub(/@mixin\s*([\w-]+)/, "@mixin #{prefix}-\\1")
+    end
+  end
+
+  # Replaces the following:
+  #  .mixin()          -> @include mixin()
+  #  #scope > .mixin() -> @include scope-mixin()
+  def replace_mixins(less)
+    mixin_pattern = /(\s+)(([#|\.][\w-]+\s*>\s*)*)\.([\w-]+\(.*\))/
+    less.gsub(mixin_pattern) do |match|
+      matches = match.scan(mixin_pattern).flatten
+      scope   = matches[1] || ''
+      if scope != ''
+        scope = scope.scan(/[\w-]+/).join('-') + '-'
+      end
+      mixin_name = match.scan(/\.([\w-]+)\(.*\)\s?\{?/).first
+
+      if mixin_name && @mixins.include?(mixin_name.first)
+        "#{matches.first}@include #{scope}#{matches.last}".gsub(/; \$/, ", $")
+      else
+        "#{matches.first}@extend .#{scope}#{matches.last.gsub(/\(\)/, '')}"
+      end
+    end
+  end
+
+  # change Microsoft filters to SASS calling convention
+  def replace_ms_filters(file)
+    log_transform 
+    file.gsub(
+      /filter: e\(%\("progid:DXImageTransform.Microsoft.gradient\(startColorstr='%d', endColorstr='%d', GradientType=(\d)\)",argb\(([\-$\w]+)\),argb\(([\-$\w]+)\)\)\);/,
+      %Q(filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='\#{ie-hex-str(\\2)}', endColorstr='\#{ie-hex-str(\\3)}', GradientType=\\1);)
+    )
+  end
+
+  # unwraps topmost rule block
+  # #sel { a: b; }
+  # to:
+  # a: b;
+  def unwrap_rule_block(css)
+    replace_in_selector(css, /.*/, '').sub(/}\s*\z/m, '')
+  end
+
+  def replace_mixin_definitions(less)
+    log_transform
+    less.gsub(/^(\s*)\.([\w-]+\(.*\))(\s*\{)/) { |match|
+      "#{$1}@mixin #{$2.tr(';', ',')}#{$3}".sub(/,\)/, ')')
+    }
+  end
+
+  def replace_vars(less)
+    less = less.gsub(/(?!@media|@page|@keyframes|@font-face|@-\w)@/, '$')
+    # variables that would be ignored by gsub above: e.g. @page-header-border-color
+    less.gsub! /@(page[\w-]+)/, '$\1'
+    less
+  end
+
+  # #gradient > .horizontal()
+  # to:
+  # @include .horizontal-gradient()
+  def replace_less_extend(less)
+    less.gsub(/\#(\w+) \> \.([\w-]*)(\(.*\));?/, '@include \1-\2\3;')
+  end
+
+  def replace_spin(less)
+    less.gsub(/(?![\-$@.])spin(?!-)/, 'adjust-hue')
+  end
+
+  def replace_image_urls(less)
+    less.gsub(/background-image: url\("?(.*?)"?\);/) {|s| "background-image: image-url(\"#{$1}\");" }
+  end
+
+  def replace_image_paths(less)
+    less.gsub('../img/', '')
+  end
+
+  def replace_escaping(less)
+    less = less.gsub(/\~"([^"]+)"/, '#{\1}') # Get rid of ~"" escape
+    less.gsub!(/\$\{([^}]+)\}/, '$\1') # Get rid of @{} escape
+    less.gsub!(/"([^"\n]*)(\$[\w\-]+)([^"\n]*)"/, '"\1#{\2}\3"') # interpolate variable in string, e.g. url("$file-1x") => url("#{$file-1x}")
+    less.gsub(/(\W)e\(%\("?([^"]*)"?\)\)/, '\1\2') # Get rid of e(%("")) escape
+  end
+
+  def insert_default_vars(scss)
+    log_transform
+    scss.gsub(/^(\$.+);/, '\1 !default;')
+  end
+
+  # Converts &-
+  def convert_less_ampersand(less)
+    regx = /^\.badge\s*\{[\s\/\w\(\)]+(&{1}-{1})\w.*?^}$/m
+
+    tmp = ''
+    less.scan(/^(\s*&)(-[\w\[\]]+\s*{.+})$/) do |ampersand, css|
+      tmp << ".badge#{css}\n"
+    end
+
+    less.gsub(regx, tmp)
+  end
+
+  # unindent by n spaces
+  def unindent(txt, n = 2)
+    txt.gsub /^[ ]{#{n}}/, ''
+  end
+
+  # indent by n spaces
+  def indent(txt, n = 2)
+    "#{' ' * n}#{txt}"
+  end
+
+  # get indent length from the first line of txt
+  def indent_width(txt)
+    txt.match(/\A\s*/).to_s.length
+  end
+
+  # @mixin transition($transition) {
+  # to:
+  # @mixin transition($transition...) {
+  def varargify_mixin_definitions(scss, *mixins)
+    log_transform *mixins
+    scss = scss.dup
+    mixins.each do |mixin|
+      scss.gsub! /(@mixin\s*#{Regexp.quote(mixin)})\((#{SCSS_MIXIN_DEF_ARGS_RE})\)/, '\1(\2...)'
+    end
+    scss
+  end
+
+  # @include transition(#{border-color ease-in-out .15s, box-shadow ease-in-out .15s})
+  # to
+  # @include transition(border-color ease-in-out .15s, box-shadow ease-in-out .15s)
+  def deinterpolate_vararg_mixins(scss)
+    scss = scss.dup
+    VARARG_MIXINS.each do |mixin|
+      if scss.gsub! /(@include\s*#{Regexp.quote(mixin)})\(\s*\#\{([^}]+)\}\s*\)/, '\1(\2)'
+        log_transform mixin
+      end
+    end
+    scss
+  end
+
+  # get full selector for rule_block
+  def get_selector(rule_block)
+    /^\s*(#{SELECTOR_RE}?)\s*\{/.match(rule_block) && $1 && $1.strip
+  end
+
+  # replace CSS rule blocks matching rule_prefix with yield(rule_block, rule_pos)
+  # will also include immediately preceding comments in rule_block
+  #
+  # option :comments -- include immediately preceding comments in rule_block
+  #
+  # replace_rules(".a{ \n .b{} }", '.b') { |rule, pos| ">#{rule}<"  } #=> ".a{ \n >.b{}< }"
+  def replace_rules(less, rule_prefix = SELECTOR_RE, options = {})
+    options = {comments: true}.merge(options || {})
+    less    = less.dup
+    s       = StringScanner.new(less)
+    rule_re = "#{rule_prefix}[^{]*#{RULE_OPEN_BRACE_RE}"
+    if options[:comments]
+      rule_start_re = /#{COMMENT_RE}*^#{rule_re}/
+    else
+      rule_start_re = /^#{rule_re}/
+    end
+
+    while (rule_start = scan_next(s, rule_start_re))
+      rule_pos       = (s.pos - rule_start.length..close_brace_pos(less, s.pos - 1))
+      less[rule_pos] = yield(less[rule_pos], rule_pos)
+    end
+    less
+  end
+
+  # replace in the top-level selector
+  # replace_in_selector('a {a: {a: a} } a {}', /a/, 'b') => 'b {a: {a: a} } b {}'
+  def replace_in_selector(css, pattern, sub)
+    # scan for selector positions in css
+    s        = StringScanner.new(css)
+    prev_pos = 0
+    sel_pos  = []
+    while (brace = scan_next(s, /#{RULE_OPEN_BRACE_RE}/))
+      sel_pos << (prev_pos .. s.pos - 1)
+      s.pos    = close_brace_pos(css, s.pos - 1) + 1
+      prev_pos = s.pos
+    end
+    replace_substrings_at(css, sel_pos) { |s| s.gsub(pattern, sub) }
+  end
+
+
+  sel_chars = '\[\]$\w\-{}#,.:&>@'
+  SELECTOR_RE = /[#{sel_chars}]+[#{sel_chars}\s]*/
+  COMMENT_RE = %r((?:^[ \t]*//[^\n]*\n))
+  RULE_OPEN_BRACE_RE         = /(?<!#)\{/
+  RULE_OPEN_BRACE_RE_REVERSE = /\{(?!#)/
+  RULE_CLOSE_BRACE_RE         = /(?<!\w)\}/
+  RULE_CLOSE_BRACE_RE_REVERSE = /\}(?!\w)/
+  BRACE_RE         = /#{RULE_OPEN_BRACE_RE}|#{RULE_CLOSE_BRACE_RE}/m
+  BRACE_RE_REVERSE = /#{RULE_OPEN_BRACE_RE_REVERSE}|#{RULE_CLOSE_BRACE_RE_REVERSE}/m
+  SCSS_MIXIN_DEF_ARGS_RE = /[\w\-,\s$:]*/
+
+  # replace first level properties in the css with yields
+  # replace_properties("a { color: white }") { |props| props.gsub 'white', 'red' }
+  def replace_properties(css, &block)
+    s = StringScanner.new(css)
+    s.skip_until /#{RULE_OPEN_BRACE_RE}\n?/
+    prev_pos = s.pos
+    depth = 0
+    pos = []
+    while (b = scan_next(s, /#{SELECTOR_RE}#{RULE_OPEN_BRACE_RE}|#{RULE_CLOSE_BRACE_RE}/m))
+      depth += (b == '}' ? -1 : +1)
+      if depth == 1
+        if b == '}'
+          prev_pos = s.pos
+        else
+          pos << (prev_pos .. s.pos - b.length - 1)
+        end
+      end
+    end
+    replace_substrings_at css, pos, &block
+  end
+
+
+  # immediate selector of css at pos
+  def selector_for_pos(css, pos, depth = -1)
+    css[css_def_pos(css, pos, depth)].strip
+  end
+
+  # get the pos of css def at pos (search backwards)
+  def css_def_pos(css, pos, depth = -1)
+    to = open_brace_pos(css, pos, depth)
+    prev_def = to - (css[0..to].reverse.index('}') || to) + 1
+    from = prev_def + 1 + (css[prev_def + 1..-1] =~ %r(^\s*[^\s/]))
+    (from..to - 1)
+  end
+
+  # next matching brace for brace at from
+  def close_brace_pos(css, from, depth = 0)
+    s     = StringScanner.new(css[from..-1])
+    while (b = scan_next(s, BRACE_RE))
+      depth += (b == '}' ? -1 : +1)
+      break if depth.zero?
+    end
+    raise "match not found for {" unless depth.zero?
+    from + s.pos - 1
+  end
+
+  # opening brace position from +from+ (search backwards)
+  def open_brace_pos(css, from, depth = 0)
+    s     = StringScanner.new(css[0..from].reverse)
+    while (b = scan_next(s, BRACE_RE_REVERSE))
+      depth += (b == '{' ? +1 : -1)
+      break if depth.zero?
+    end
+    raise "matching { brace not found" unless depth.zero?
+    from - s.pos + 1
+  end
+
+  # advance scanner to pos after the next match of pattern and return the match
+  def scan_next(scanner, pattern)
+    return unless scanner.skip_until(pattern)
+    scanner.pos -= scanner.matched_size
+    scanner.scan pattern
+  end
+
+  # insert substitutions into text at positions (Range or Fixnum)
+  # substitutions can be passed as array or as yields from the &block called with |substring, position, text|
+  # position is a range (begin..end)
+  def replace_substrings_at(text, positions, replacements = nil, &block)
+    offset = 0
+    positions.each_with_index do |p, i|
+      p = (p...p) if p.is_a?(Fixnum)
+      from = p.begin + offset
+      to = p.end + offset
+      p       = p.exclude_end? ? (from...to) : (from..to)
+      # block returns the substitution, e.g.: { |text, pos| text[pos].upcase }
+      r       = replacements ? replacements[i] : block.call(text[p], p, text)
+      text[p] = r
+      # add the change in length to offset
+      offset  += r.size - (p.end - p.begin + (p.exclude_end? ? 0 : 1))
+    end
+    text
+  end
+
+  def get_json(url)
+    JSON.parse get_file(url)
+  end
+
+  def get_file(url)
+    log_http_get url
+    open(url).read
+  end
+
+  class Logger
+    include Term::ANSIColor
+
+    def initialize(env)
+      @env = env
+      puts bold "Convert Bootstrap LESS to SASS"
+      puts " repo   : #{env[:repo]}"
+      puts " branch : #{env[:branch]} #{dark "#{env[:repo]}/tree/#{env[:branch_sha]}"}"
+      puts " save to: SCSS @ #{@env[:save_at][:scss]} JS @ #{@env[:save_at][:js]}"
+      puts dark "-" * 60
+    end
+
+    def log_status(status)
+      puts bold status
+    end
+
+    def log_transform(*args)
+      puts "#{cyan "    #{caller[1][/`.*'/][1..-2].sub(/^block in /, '')}"}#{cyan ": #{args * ', '}" unless args.empty?}"
+    end
+
+    def log_downloading(files, from)
+      puts dark cyan "  GET #{files.length} files from #{from} #{files * ' '}..."
+    end
+
+    def log_processing(name)
+      puts yellow "  #{File.basename(name)}"
+    end
+
+    def log_processed(name)
+      puts green "    #{name}"
+    end
+
+    def log_http_get(url)
+      puts dark cyan "  GET #{url}..."
+    end
+
+    def puts(*args)
+      STDOUT.puts *args unless @silence
+    end
+
+    def silence_log
+      @silence = true
+      yield
+    ensure
+      @silence = false
+    end
+  end
+end
