@@ -11,14 +11,27 @@ describe "UserPages" do
 	end
 
 	describe "Profilseite" do
-		let(:user) {FactoryGirl.create(:user)}
-		before do
-			sign_in user
-			visit user_path(user)
+		describe "for normal users" do
+			let(:user) {FactoryGirl.create(:user)}
+			before do
+				sign_in user
+				visit user_path(user)
+			end
+
+			it { should have_title user.nicname}
+			it { should have_content user.nicname}
+			it { should_not have_content "Admin Dashboard"}
 		end
 
-		it { should have_title user.nicname}
-		it { should have_content user.nicname}
+		describe "for admin users" do
+			let(:admin) {FactoryGirl.create(:admin)}
+			before do
+				sign_in admin
+				visit user_path(admin)
+			end
+
+			it { should have_content "Admin Dashboard"}
+		end
 	end
 
 	describe "edit" do
@@ -113,6 +126,23 @@ describe "UserPages" do
 				it { should have_content 'error' }
 			end
 		end
+	end
+
+	describe "index (admin only!)" do
+		let(:admin) { FactoryGirl.create(:admin) }
+		before do
+			sign_in admin
+			visit users_path
+		end
+
+		it { should have_link 'delete'}
+		it "should be able to delete a user" do
+			expect do
+				click_link('delete', match: :first) # method: :delete ???
+			end.to change(User, :count).by(-1)
+		end
+		# Test, ob sich admin selbst loeschen darf:
+		# it { should_not have_link('delete', href: user_path(admin))}
 	end
 
 	# Nicht fuer Normale Nutzer!!

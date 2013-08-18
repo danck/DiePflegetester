@@ -11,3 +11,10 @@ TODO: Sicherstellen, dass nur oeffentliche Informationen fuer alle verfuegbar si
 		</section>
 	</div>
 </div>
+
+<% if helper_current_user.role == 'admin' %>
+<h2>Admin Dashboard</h2>
+<%= link_to "Benutzer", users_path %>
+<%= link_to "Pflegeberater", '#' %>
+<%= link_to "Pfelgeanbieter", '#' %>
+<% end %>

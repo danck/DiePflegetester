@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user,  only: [:edit, :update, :show, :index]
-  before_action :correct_user,    only: [:edit, :update, :show]
+  before_action :signed_in_user,  only: [:edit, :update, :show, :index, :destroy]
+  before_action :correct_user,    only: [:edit, :update, :show, :destroy]
+  before_action :admin_user,      only: [:index, :destroy]
 
   include SessionsHelper
 
@@ -23,6 +24,12 @@ class UsersController < ApplicationController
 		  flash[:error] = "Fehler</i>".html_safe
 		  render 'new'
     end
+  end
+
+  def destroy
+    User.find(params[:id]).destroy
+    flash[:success] = "Benutzer geloescht"
+    redirect_to users_url
   end
 
   def index
@@ -77,5 +84,9 @@ class UsersController < ApplicationController
     def correct_user
       @user = User.find(params[:id])
       redirect_to(root_url) unless helper_current_user?(@user) || helper_current_user.role == 'admin'
+    end
+
+    def admin_user
+      redirect_to root_url unless helper_current_user.role == 'admin'
     end
 end

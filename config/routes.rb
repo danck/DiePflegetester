@@ -16,6 +16,7 @@ Pflegetester::Application.routes.draw do
   post "/benutzer"           => 'users#create'
   match "/benutzer/:id/bearbeiten", to: 'users#edit',   via: 'get',   as: :edit_user
   match "/benutzer/:id",            to: 'users#update', via: 'patch', as: :patch_user
+  match "/benutzer/:id",            to: 'users#destroy', via: 'delete'
 
   # Sessions
   match '/anmelden',  to: 'sessions#new',         via: 'get'

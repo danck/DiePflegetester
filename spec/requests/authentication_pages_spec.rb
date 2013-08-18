@@ -40,6 +40,14 @@ describe "AuthenticationPages" do
   					expect(page).to have_title 'Start'
   				end
   			end
+
+  			describe "delete a user" do
+  				before do
+  					sign_in wrong_user, no_capybara: true
+  					delete user_path(user)
+  				end
+  				specify { expect(response).to redirect_to root_url }
+  			end
   		end
 
   		describe "as admin user" do
