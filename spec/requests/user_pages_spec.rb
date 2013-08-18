@@ -46,7 +46,7 @@ describe "UserPages" do
 				{ user: { role: 'admin', password: user.password,
 					password_confirmation: user.password}}
 			end
-			before ( patch user_path(user), params )
+			before { patch user_path(user), params }
 			specify { expect(user.reload.role).to eq 'benutzer'}
 			specify { expect(user.reload.role).not_to eq 'admin'}
 		end
