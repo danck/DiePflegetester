@@ -41,6 +41,16 @@ describe "UserPages" do
 			visit edit_user_path(user) 
 		end
 
+		describe "forbidden attributes" do
+			let(:params) do
+				{ user: { role: 'admin', password: user.password,
+					password_confirmation: user.password}}
+			end
+			before ( patch user_path(user), params )
+			specify { expect(user.reload.role).to eq 'benutzer'}
+			specify { expect(user.reload.role).not_to eq 'admin'}
+		end
+
 		describe "page" do
 			it { should have_content 'Profil bearbeiten' }
 			it { should have_button 'Speichern' }
