@@ -3,7 +3,7 @@
 
 <%= will_paginate @users, renderer: BootstrapPagination::Rails, bootstrap: 3  %>
 
-<ul class="users">
+<ul class="midi-list">
   <% @users.each do |user| %>
     <%= render "listed_user", user: user %>
   <% end %>

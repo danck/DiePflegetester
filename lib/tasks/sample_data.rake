@@ -5,7 +5,8 @@ namespace :db do
 			email: "bl@example.com",
 			nicname: "bla",
 			password: "foobar",
-			password_confirmation: "foobar")
+			password_confirmation: "foobar",
+			role: 'admin')
 		99.times do |n|
 			name 		= Faker::Name.name
 			nicname		= name + n.to_s
@@ -16,6 +17,11 @@ namespace :db do
 				nicname: nicname,
 				password: password,
 				password_confirmation: password)
+		end
+		Pflegeberater.create!(name: "Beispielberater")
+		99.times do |n|
+			name 	= Faker::Name.name
+			Pflegeberater.create!(name: name)
 		end
 	end
 end

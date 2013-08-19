@@ -1,0 +1,12 @@
+<% provide(:title, 'Pflegeberaterverwaltung') %>
+<h1>Alle Pflegeberater</h1>
+
+<%= will_paginate @pflegeberaters, renderer: BootstrapPagination::Rails, bootstrap: 3  %>
+
+<div class="list-group">
+  <% @pflegeberaters.each do |pflegeberater| %>
+    <%= render "listed_pflegeberater", pflegeberater: pflegeberater %>
+  <% end %>
+</div>
+
+<%= will_paginate @pflegeberaters, renderer: BootstrapPagination::Rails, bootstrap: 3  %>

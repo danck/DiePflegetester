@@ -23,6 +23,10 @@ Pflegetester::Application.routes.draw do
   match '/anmelden',  to: 'sessions#create',      via: 'post'  
   match '/abmelden',  to: 'sessions#destroy',     via: 'delete'
 
+  # Pflegeberater
+  match '/pflegeberater',   to: 'pflegeberater#index', via: 'get'
+  match '/pflegeberater',   to: 'pflegeberater#show', via: 'get', as: :pflegeberater_show
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

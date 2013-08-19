@@ -1,5 +1,7 @@
-
 /* universal */
+@import "bootstrap";
+
+$greyDarker: #a0a0a0;
 
 html {
   overflow-y: scroll;
@@ -38,6 +40,8 @@ textarea {
 
 .second-top-bar {
 	margin-top: 30px;
+    border-top: 1px solid $greyDarker;
+    border-bottom: 1px solid $greyDarker;
 }
 
 #logo {
@@ -152,18 +156,17 @@ footer {
 
 /* Users index */
 
-.users {
+.midi-list {
   list-style: none;
   margin: 0;
   li {
     overflow: auto;
     padding: 10px 0;
-    border-top: 1px solid grey;
+    border-top: 1px solid $greyDarker;
     &:last-child {
-      border-bottom: 1px solid grey;
+      border-bottom: 1px solid $greyDarker;
     }
   }
 }
 
-@import "bootstrap";
 /*@import "bootstrap-responsive";*/

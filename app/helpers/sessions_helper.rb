@@ -39,4 +39,16 @@ module SessionsHelper
 		session[:return_to] = request.url
 		# puts request.inspect
 	end
+
+	def signed_in_user
+      unless helper_signed_in?
+        flash[:notice] = "Bitte anmelden"
+        helper_store_location
+        redirect_to anmelden_url # , notice: "bitte anmelden"
+      end
+    end
+
+    def admin_user
+      redirect_to root_url unless helper_current_user.role == 'admin'
+    end
 end
