@@ -11,7 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130818233132) do
+ActiveRecord::Schema.define(version: 20130821125517) do
+
+  create_table "addresses", force: true do |t|
+    t.string   "street"
+    t.integer  "number"
+    t.integer  "zipcode_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "perimeters", force: true do |t|
+    t.integer  "center_id"
+    t.string   "neighbor_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "pflegeberaters", force: true do |t|
     t.string   "name"
@@ -32,5 +47,23 @@ ActiveRecord::Schema.define(version: 20130818233132) do
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["remember_token"], name: "index_users_on_remember_token", using: :btree
+
+  create_table "within_perimeters", force: true do |t|
+    t.integer  "zipcode_id"
+    t.integer  "neighbor"
+    t.integer  "distance"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "within_perimeters", ["zipcode_id"], name: "index_within_perimeters_on_zipcode_id", using: :btree
+
+  create_table "zipcodes", force: true do |t|
+    t.integer  "code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "zipcodes", ["code"], name: "index_zipcodes_on_code", using: :btree
 
 end
