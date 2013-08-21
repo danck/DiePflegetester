@@ -1,4 +1,7 @@
 Pflegetester::Application.routes.draw do
+  get "addresses/create"
+  get "addresses/update"
+  get "addresses/destroy"
   # resources :users
   # resources :sessions, only: [:new, :create, :destroy]
 
