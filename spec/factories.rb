@@ -33,4 +33,21 @@ FactoryGirl.define do
 		password "foobar"
 		password_confirmation "foobar"
 	end
+
+	factory :zipcodes, class: :zipcode do
+		sequence(:code)		{ |n| 10000 + n }
+	end
+
+	factory :addresses, class: :address do
+		sequence(:street)	{ |n| "Bla#{n}street"}
+		sequence(:street_number)
+		association :zipcode_id, factory: :zipcodes 
+	end
+
+	factory :contact_data do
+	end
+
+	factory :anbieter do
+		name 		"Testanbieter"
+	end
 end

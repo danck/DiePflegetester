@@ -1,0 +1,6 @@
+<li>
+    <% # TODO: Hierhin noch das Bild %>
+    <%= link_to anbieter.name, anbieter %>
+    <%= link_to "delete", anbieter, method: :delete,
+                                  data: { confirm: "Anbieter #{anbieter.name} loeschen: Sicher?" } %>
+</li>

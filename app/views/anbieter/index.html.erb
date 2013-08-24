@@ -1,0 +1,15 @@
+<% provide(:title, 'Anbieterverwaltung') %>
+<h1>Alle Anbieter</h1>
+
+<%= will_paginate @anbieter, renderer: BootstrapPagination::Rails, bootstrap: 3  unless @anbieter.nil? %>
+<% puts @anbieter.inspect %>
+
+<ul class="midi-list">
+	<% unless @anbieter.nil? %>
+  		<% @anbieter.each do |anbieter| %>
+    	<%= render "listed_anbieter", anbieter: anbieter %>
+  		<% end %>
+  	<% end %>
+</ul>
+
+<%= will_paginate @anbieter, renderer: BootstrapPagination::Rails, bootstrap: 3 unless @anbieter.nil? %>

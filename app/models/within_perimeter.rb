@@ -3,7 +3,8 @@ class WithinPerimeter < ActiveRecord::Base
 
 	validates :zipcode_id,
 		presence: true,
-		numericality: { only_integer: true }
+		numericality: { only_integer: true },
+		uniqueness: { scope: :neighbor }
 	validates :neighbor,
 		presence: true,
 		numericality: { only_integer: true }

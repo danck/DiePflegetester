@@ -18,10 +18,10 @@ namespace :db do
 				password: password,
 				password_confirmation: password)
 		end
-		Pflegeberater.create!(name: "Beispielberater")
+		Anbieter.create!(name: "Beispiel Anbieter")
 		99.times do |n|
-			name 	= Faker::Name.name
-			Pflegeberater.create!(name: name)
+			name 	= "Anbieter: " + Faker::Name.name
+			Anbieter.create!(name: name)
 		end
 	end
 end

@@ -18,5 +18,8 @@ describe Zipcode do
 	describe "with invalid data" do
 		before { @zip.update_attributes(code: 1234)}
 		it { should_not be_valid }
+
+		before { @zip.update_attributes(code: "abc")}
+		it { should_not be_valid }		
 	end
 end

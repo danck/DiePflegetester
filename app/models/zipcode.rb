@@ -6,5 +6,6 @@ class Zipcode < ActiveRecord::Base
 	validates :code, 
 		presence: true,
 		length: { is: 5 },
-		numericality: { only_integer: true }
+		numericality: { only_integer: true },
+		uniqueness: true
 end

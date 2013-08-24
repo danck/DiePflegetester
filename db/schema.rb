@@ -11,12 +11,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130821125517) do
+ActiveRecord::Schema.define(version: 20130824191145) do
 
   create_table "addresses", force: true do |t|
     t.string   "street"
     t.integer  "number"
     t.integer  "zipcode_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "anbieters", force: true do |t|
+    t.string   "name"
+    t.integer  "contact_data_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "contact_data", force: true do |t|
+    t.string   "street"
+    t.string   "street_number"
+    t.string   "city"
+    t.integer  "zipcode_id"
+    t.string   "phone_number"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

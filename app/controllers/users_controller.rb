@@ -10,7 +10,7 @@ class UsersController < ApplicationController
   end
 
   def show
-  	@user = User.find(params[:id])
+  	@user = User.find(params[:id].to_i)
   end
 
   def create
@@ -27,7 +27,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
+    User.find(params[:id].to_i).destroy
     flash[:success] = "Benutzer geloescht"
     redirect_to users_url
   end
@@ -47,7 +47,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user = User.find(params[:id])
+    @user = User.find(params[:id].to_i)
     if @user.update_attributes(user_params)
       flash[:success] = "Profil gespeichert"
       # helper_sign_in @user

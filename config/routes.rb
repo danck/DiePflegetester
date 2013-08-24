@@ -1,7 +1,5 @@
 Pflegetester::Application.routes.draw do
-  get "addresses/create"
-  get "addresses/update"
-  get "addresses/destroy"
+
   # resources :users
   # resources :sessions, only: [:new, :create, :destroy]
 
@@ -25,6 +23,11 @@ Pflegetester::Application.routes.draw do
   match '/anmelden',  to: 'sessions#new',         via: 'get'
   match '/anmelden',  to: 'sessions#create',      via: 'post'  
   match '/abmelden',  to: 'sessions#destroy',     via: 'delete'
+
+  # Anbieter
+  match '/anbieter/index',  to: 'anbieter#index',   via: 'get'
+  match '/anbieter/:id',    to: 'anbieter#show',    via: 'get',   as: :anbieter
+
 
   # Pflegeberater
   match '/pflegeberater',   to: 'pflegeberater#index', via: 'get'
