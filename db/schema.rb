@@ -11,12 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130824191145) do
+ActiveRecord::Schema.define(version: 20130825143754) do
 
   create_table "addresses", force: true do |t|
     t.string   "street"
-    t.integer  "number"
+    t.string   "street_number"
     t.integer  "zipcode_id"
+    t.string   "city"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -29,11 +30,9 @@ ActiveRecord::Schema.define(version: 20130824191145) do
   end
 
   create_table "contact_data", force: true do |t|
-    t.string   "street"
-    t.string   "street_number"
-    t.string   "city"
-    t.integer  "zipcode_id"
+    t.integer  "address_id"
     t.string   "phone_number"
+    t.string   "website"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

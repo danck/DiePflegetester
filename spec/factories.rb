@@ -38,13 +38,25 @@ FactoryGirl.define do
 		sequence(:code)		{ |n| 10000 + n }
 	end
 
+	factory :zipcode do
+		code		12345
+	end
+
 	factory :addresses, class: :address do
 		sequence(:street)	{ |n| "Bla#{n}street"}
 		sequence(:street_number)
-		association :zipcode_id, factory: :zipcodes 
+		association :zipcode, :factory => :zipcodes
+		# zipcode_id 12
+	end
+
+	factory :address do
+		street 			"blaStreet"
+		street_number	"12a"
+		association :zipcode_id, factory: :zipcode
 	end
 
 	factory :contact_data do
+
 	end
 
 	factory :anbieter do

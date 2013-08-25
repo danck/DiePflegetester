@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Zipcode do
-	before { @zip = Zipcode.new()}
+	before { @zip = FactoryGirl.create(:zipcodes)}
 	
 	subject { @zip }
 

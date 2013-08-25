@@ -1,3 +1,3 @@
 class ContactData < ActiveRecord::Base
-	validates :address_id, presence: true
+	has_one :address
 end
