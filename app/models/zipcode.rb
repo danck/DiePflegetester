@@ -1,7 +1,7 @@
 class Zipcode < ActiveRecord::Base
-	has_many :within_perimeters, foreign_key: :neighbor, dependent: :destroy
+	has_many :within_perimeters, foreign_key: :neighbor, dependent: :destroy, inverse_of: :zipcode
 	has_many :neighbors, through: :within_perimeters, source: :zipcode
-	has_many :addresses
+	has_many :anbieters, inverse_of: :zipcode
 
 	validates :code, 
 		presence: true,

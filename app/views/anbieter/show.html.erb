@@ -2,12 +2,23 @@
 
 <h1><%= @anbieter.name %></h1>
 TODO: Sicherstellen, dass nur oeffentliche Informationen fuer alle verfuegbar sind 
+
 <div class="row">
-	<div class="col-6 col-sm-4 col-lg-4 user-aside">
-		<section>
-			<h1>
-				<% # @anbieter.contact %>
-			</h1>
-		</section>
+	<div class="col-md-3">
+		<div class="bs-sidebar hidden-print" role="complementary">
+			<ul class="nav bs-sidenav">
+				<div class="page-header">
+					<h3>Kontakt</h3>
+				</div>
+				<%= @anbieter.contact_data.address.street %>
+				<%= @anbieter.contact_data.address.street_number %><br>
+				<%= @anbieter.contact_data.address.zipcode %><br>
+				<%= @anbieter.contact_data.address.city %><br>
+
+				Telefon: <br>
+				Website: <br>
+			</ul>
+		</div>
 	</div>
 </div>
+        

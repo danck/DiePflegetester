@@ -1,5 +1,5 @@
 class WithinPerimeter < ActiveRecord::Base
-	belongs_to :zipcode
+	belongs_to :zipcode, inverse_of: :within_perimeters
 
 	validates :zipcode_id,
 		presence: true,

@@ -11,41 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130825143754) do
-
-  create_table "addresses", force: true do |t|
-    t.string   "street"
-    t.string   "street_number"
-    t.integer  "zipcode_id"
-    t.string   "city"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
+ActiveRecord::Schema.define(version: 20130824145518) do
 
   create_table "anbieters", force: true do |t|
+    t.integer  "zipcode_id"
     t.string   "name"
-    t.integer  "contact_data_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "contact_data", force: true do |t|
-    t.integer  "address_id"
+    t.string   "street"
+    t.string   "street_number"
+    t.string   "city"
     t.string   "phone_number"
-    t.string   "website"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "perimeters", force: true do |t|
-    t.integer  "center_id"
-    t.string   "neighbor_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "pflegeberaters", force: true do |t|
-    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -54,7 +28,7 @@ ActiveRecord::Schema.define(version: 20130825143754) do
     t.string   "nicname"
     t.string   "name"
     t.string   "email"
-    t.string   "role"
+    t.string   "role",            default: "benutzer"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "password_digest"

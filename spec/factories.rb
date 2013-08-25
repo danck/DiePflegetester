@@ -42,24 +42,12 @@ FactoryGirl.define do
 		code		12345
 	end
 
-	factory :addresses, class: :address do
-		sequence(:street)	{ |n| "Bla#{n}street"}
-		sequence(:street_number)
+	factory :anbieters, class: :anbieter do
+		sequence(:street)			{ |n| "Bla#{n}street" }
+		sequence(:street_number)	{ |n| "#{n}a" }
+		sequence(:name)				{ |n| "Bla#{n}" }
+		sequence(:city)				{ |n| "Bla#{n}city" }
+		sequence(:phone_number)		{ |n| "+#{n+1000}" }
 		association :zipcode, :factory => :zipcodes
-		# zipcode_id 12
-	end
-
-	factory :address do
-		street 			"blaStreet"
-		street_number	"12a"
-		association :zipcode_id, factory: :zipcode
-	end
-
-	factory :contact_data do
-
-	end
-
-	factory :anbieter do
-		name 		"Testanbieter"
 	end
 end
