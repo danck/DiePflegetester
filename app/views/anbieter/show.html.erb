@@ -1,24 +1,43 @@
 <% provide(:title, @anbieter.name) %>
-
-<h1><%= @anbieter.name %></h1>
-TODO: Sicherstellen, dass nur oeffentliche Informationen fuer alle verfuegbar sind 
+<div class="page-header" style="text-align: center;">
+	<h1><%= @anbieter.name %></h1>
+</div>
 
 <div class="row">
-	<div class="col-md-3">
-		<div class="bs-sidebar hidden-print" role="complementary">
-			<ul class="nav bs-sidenav">
-				<div class="page-header">
-					<h3>Kontakt</h3>
-				</div>
-				<%= @anbieter.contact_data.address.street %>
-				<%= @anbieter.contact_data.address.street_number %><br>
-				<%= @anbieter.contact_data.address.zipcode %><br>
-				<%= @anbieter.contact_data.address.city %><br>
+	<div class="col-md-3" id="sidebar">
+		<div class="well sidebar-nav">
+			<div class="page-header" style="text: center;">
+				<h3>Kontakt</h3>
+			</div>
+			<%= @anbieter.street %>
+			<%= @anbieter.street_number %><br>
+			<%= @anbieter.zipcode.code %><br>
+			<%= @anbieter.city %><br>
 
-				Telefon: <br>
-				Website: <br>
-			</ul>
+			Telefon: <br>
+			Website: <br>
+    	</div><!--/.well -->
+	</div><!--/span-->
+
+<div class="col-md-9 pull-right">
+	<div class="container">
+		<h2>Kommentare</h2>
+	</div>
+	<div class="container">
+		<%= will_paginate @comments, renderer: BootstrapPagination::Rails, bootstrap: 3  unless @comments.nil? %>
+		<button type="button" class="btn btn-default pull-right">
+			Diesen Anbieter kommentieren
+		</button>
+		<ul class="midi-list">
+			<% unless @comments.nil? %>
+		  		<% @comments.each do |comment| %>
+		    	<%= render "listed_comment", comment: comment %>
+		  		<% end %>
+		  	<% end %>
+		</ul>
+
+		<%= will_paginate @comments, renderer: BootstrapPagination::Rails, bootstrap: 3 unless @comments.nil? %>
 		</div>
 	</div>
 </div>
-        
+</div><!--/row-->

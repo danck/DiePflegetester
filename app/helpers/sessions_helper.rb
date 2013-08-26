@@ -1,4 +1,6 @@
 module SessionsHelper
+
+	# creates a secure remember token and stores in as user's cookie and in database
 	def helper_sign_in user
 		remember_token	= User.new_remember_token
 		cookies.permanent[:remember_token] = remember_token
@@ -16,6 +18,7 @@ module SessionsHelper
 		@current_user = user
 	end
 
+	# returns current user
 	def helper_current_user
 		remember_token = User.encrypt(cookies[:remember_token])
 		@current_user ||= User.find_by(remember_token: remember_token)
@@ -35,6 +38,7 @@ module SessionsHelper
 		session.delete(:return_to)
 	end
 
+	# stores actual request
 	def helper_store_location
 		session[:return_to] = request.url
 		# puts request.inspect
@@ -48,6 +52,7 @@ module SessionsHelper
       end
     end
 
+    # inflexible convenience method to quick-check for admins
     def admin_user
       redirect_to root_url unless helper_current_user.role == 'admin'
     end

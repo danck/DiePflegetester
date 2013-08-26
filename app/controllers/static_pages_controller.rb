@@ -10,4 +10,7 @@ class StaticPagesController < ApplicationController
 
   def impressum
   end
+
+  def suche
+  end
 end

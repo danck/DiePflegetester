@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130824145518) do
+ActiveRecord::Schema.define(version: 20130826091547) do
 
   create_table "anbieters", force: true do |t|
     t.integer  "zipcode_id"
@@ -20,6 +20,17 @@ ActiveRecord::Schema.define(version: 20130824145518) do
     t.string   "street_number"
     t.string   "city"
     t.string   "phone_number"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "comments", force: true do |t|
+    t.text     "body"
+    t.integer  "anbieter_id"
+    t.integer  "user_id"
+    t.integer  "rating"
+    t.boolean  "published"
+    t.boolean  "validated"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

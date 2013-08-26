@@ -2,6 +2,8 @@ class User < ActiveRecord::Base
 	before_save { self.email.downcase! }
 	before_create :create_remember_token
 
+	has_many :comments, inverse_of: :user
+
 # TODO bessere Email regex
 	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
 

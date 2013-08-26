@@ -10,6 +10,9 @@ class AnbieterController < ApplicationController
 
 	def show
 		@anbieter = Anbieter.find(params[:id].to_i)
+		if @anbieter
+			@comments = @anbieter.comments.paginate(page: params[:page], per_page: 10)
+		end
 	end
 
 	def index

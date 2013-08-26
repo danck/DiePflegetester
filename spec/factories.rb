@@ -50,4 +50,11 @@ FactoryGirl.define do
 		sequence(:phone_number)		{ |n| "+#{n+1000}" }
 		association :zipcode, :factory => :zipcodes
 	end
+
+	factory :comments, class: :comment do
+		sequence(:body)				{ |n| "ba dsdas as #{n} radf"}
+		sequence(:rating)			{ |n| n-5 }
+		association :user, factory: :users
+		association :anbieter, factory: :anbieters
+	end
 end

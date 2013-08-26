@@ -9,6 +9,7 @@ Pflegetester::Application.routes.draw do
   get "/hilfe"              => 'static_pages#hilfe'
   get "/kontakt"            => 'static_pages#kontakt'
   get "/impressum"          => 'static_pages#impressum'
+  get "/suche"              => 'static_pages#suche'
 
   # Benutzer
   get "/registrieren"       => 'users#new'

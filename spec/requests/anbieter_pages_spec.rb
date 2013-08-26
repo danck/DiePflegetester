@@ -35,13 +35,13 @@ describe "AnbieterPages" do
 
   	describe "Anbieter Page" do
   		describe "for non-signed in users" do
-	  		let(:anbieter) { FactoryGirl.create(:anbieter)}
+	  		let(:anbieter) { FactoryGirl.create(:anbieters)}
 	  		before { visit anbieter_path(anbieter) }
 
 	  		it { should have_title anbieter.name }
 	  		it { should have_content anbieter.name }
 	  		it { should_not have_content 'Bearbeiten' }
-	  		it { should have_content 'Adresse' }
+	  		it { should have_content 'Kontakt' }
 	  		it { should have_content 'Kommentare' }
 	  	end
   	end
