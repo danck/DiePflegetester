@@ -2,13 +2,17 @@
 @import "bootstrap";
 
 $greyDarker: #a0a0a0;
+$stdBG: #fff; /*#FCFCE3;*/
+
 
 html {
   overflow-y: scroll;
+  background-color: $stdBG;
 }
 
 body {
-  padding-top: 90px;
+  padding-top: 148px;
+  background-color: $stdBG;
 }
 
 section {
@@ -30,8 +34,9 @@ textarea {
 /* header */
 
 .first-top-bar {
-	background-color: #f0f0f0;
-	height: 30px;
+	/*background-color: #f0f0f0;*/
+	background-image: image-url('smashwallpapers_com_look-at-this-happy-face2.jpg');
+	height: 90px;
 
 	navbar-nav {
 		float: right;
@@ -39,7 +44,10 @@ textarea {
 }
 
 .second-top-bar {
-	margin-top: 30px;
+	/*background-color: #fff;*/
+	background-color: $stdBG;
+	opacity: 1;
+	margin-top: 90px;
     border-top: 1px solid $greyDarker;
     border-bottom: 1px solid $greyDarker;
 }

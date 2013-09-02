@@ -1,5 +1,7 @@
 Pflegetester::Application.routes.draw do
 
+  get "comments/new"
+  get "comments/create"
   # resources :users
   # resources :sessions, only: [:new, :create, :destroy]
 
@@ -9,7 +11,7 @@ Pflegetester::Application.routes.draw do
   get "/hilfe"              => 'static_pages#hilfe'
   get "/kontakt"            => 'static_pages#kontakt'
   get "/impressum"          => 'static_pages#impressum'
-  get "/suche"              => 'static_pages#suche'
+  get "/mitmachen"          => 'static_pages#mitmachen'
 
   # Benutzer
   get "/registrieren"       => 'users#new'
@@ -26,8 +28,15 @@ Pflegetester::Application.routes.draw do
   match '/abmelden',  to: 'sessions#destroy',     via: 'delete'
 
   # Anbieter
-  match '/anbieter/index',  to: 'anbieter#index',   via: 'get'
+  match '/anbieter/index',  to: 'anbieter#index',   via: 'get' #,    as: :anbieters
   match '/anbieter/:id',    to: 'anbieter#show',    via: 'get',   as: :anbieter
+  match '/anbieter',    to: 'anbieter#new',     via: 'get',       as: :anbieter_new
+  match '/anbieter',    to: 'anbieter#create',  via: 'post'
+  get "/suche"              => 'anbieter#suche'
+  post "/suche"             => 'anbieter#suche'
+  
+  # Kommentare
+  resources :comments, only: [:new, :create, :edit]
 
 
   # Pflegeberater

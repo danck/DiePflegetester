@@ -1,2 +1,28 @@
-<h1>Anbieter#new</h1>
-<p>Find me in app/views/anbieter/new.html.erb</p>
+<% provide(:title, 'Neuer Anbieter') %>
+
+<div class="page-header">
+  <h1>Neuen Anbieter eintragen</h1>
+</div>
+
+<div class="container">
+	<div class="form-horizontal" role="form">
+		<%= form_for @anbieter, url: { action: "create" }, role: "form-group" do |f| %>
+			<%= render 'shared/error_messages', object: @anbieter %>
+
+			<%= f.text_field :name, class: "form-control input-lg", placeholder: "Name" %>
+
+			<%= f.text_field :street, class: "form-control input-lg", placeholder: "Strasse" %>
+
+			<%= f.text_field :street_number, class: "form-control input-lg", placeholder: "Hausnummer" %>
+
+			<%= f.text_field :zipcode, class: "form-control input-lg", placeholder: "Postleitzahl" %>
+
+			<%= f.text_field :city, class: "form-control input-lg",
+				placeholder: "Stadt" %>
+
+			<%= f.text_field :phone_number, class: "form-control input-lg", placeholder: "Telefonnummer" %>
+
+			<%= f.submit "Anbieter eintragen", class: "btn btn-large btn-primary" %>
+		<% end %>
+	</div>
+</div>

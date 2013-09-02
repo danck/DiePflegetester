@@ -2,6 +2,6 @@
     <%= comment.body %> <br>
     <div class="comment-footer">
     	Am: <%= comment.created_at %> 
-    	Von: <%= comment.user.nicname %>
+    	Von: <%= link_to comment.user.nicname, user_path(comment.user) %>
     </div>
 </li>

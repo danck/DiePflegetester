@@ -6,7 +6,7 @@
 <div class="container">
 	<div class="form-horizontal" role="form">
 		<%= form_for(@user) do |f| %>
-			<%= render 'shared/error_messages' %>
+			<%= render 'shared/error_messages', object: @user %>
 
 			<div class="input-group">
 				<span class="input-group-addon">Alias</span>
@@ -22,7 +22,6 @@
 				<span class="input-group-addon">Email</span>
 				<%= f.email_field :email, class: "form-control input-lg" %>
 			</div>
-
 
 			<div class="input-group">
 				<span class="input-group-addon">Passwort</span>

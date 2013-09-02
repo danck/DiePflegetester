@@ -1,11 +1,25 @@
 class AnbieterController < ApplicationController
-	before_action :signed_in_user,  only: [:edit, :update, :index, :destroy]
+	before_action :signed_in_user,  only: [:new, :create, :edit, :update, :index, :destroy]
   	before_action :correct_user,    only: [:edit, :update, :destroy]
   	before_action :admin_user,      only: [:index, :destroy]
 
 	include SessionsHelper
+	include InputHelper
 
 	def new
+		@anbieter = Anbieter.new
+	end
+
+	def create
+		puts anbieter_params
+	    @anbieter = Anbieter.new(anbieter_params)
+	    if @anbieter.save
+			  flash[:success] = "#{@anbieter.name} wurde eingetragen".html_safe
+			  redirect_to @anbieter
+	    else
+			  flash[:error] = "Fehler</i>".html_safe
+			  render 'new'
+	    end		
 	end
 
 	def show
@@ -29,15 +43,37 @@ class AnbieterController < ApplicationController
 		end
 	end
 
+
+	def suche
+	    if Anbieter.any?
+		    @anbieter = Anbieter.paginate(page: params[:page], per_page: 20)
+	    else
+	    	flash.now[:error] = "Keine Anbieter gefunden"
+	    end
+	end
+
 	private
 
-    # Before Filters
+	    # Before Filters
 
-    def signed_in_user
-      unless helper_signed_in?
-        flash[:notice] = "Bitte anmelden"
-        helper_store_location
-        redirect_to anmelden_url # , notice: "bitte anmelden"
-      end
-    end
+	    def signed_in_user
+	      unless helper_signed_in?
+	        flash[:notice] = "Bitte anmelden"
+	        helper_store_location
+	        redirect_to anmelden_url # , notice: "bitte anmelden"
+	      end
+	    end
+
+	    def anbieter_params
+	    	if zipcode = Zipcode.where(code: make_safe_for(:html,params[:anbieter][:zipcode])).first
+	    		params[:anbieter][:zipcode_id] = zipcode.id
+	    	end	
+	    	params.require(:anbieter).permit(
+	        	:name, 
+	        	:street, 
+	        	:street_number, 
+	        	:phone_number, 
+	        	:city,
+	        	:zipcode_id)
+	  	end
 end

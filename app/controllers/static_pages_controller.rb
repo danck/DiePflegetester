@@ -11,6 +11,6 @@ class StaticPagesController < ApplicationController
   def impressum
   end
 
-  def suche
+  def mitmachen
   end
 end
