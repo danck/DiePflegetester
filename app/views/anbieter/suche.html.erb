@@ -1,0 +1,27 @@
+<% provide(:title, 'Suche') %>
+
+<div class="page-header">
+  <h1>Angebote finden</h1>
+</div>
+<div class="container">
+	<div class="form-horizontal" role="form">
+		<%= form_tag({controller: "anbieter", action: "suche"}, method: "post", class: "form-group", role: "form-group") do %>
+	  		<%= number_field_tag "postleitzahl", nil, in: 10000...99999, class: "form-control input-lg", placeholder: "Postleitzahl", maxlength: 5, autofocus: true %>
+			<%= submit_tag "Search", class: "btn btn-large btn-primary btn-block" %>
+		<% end %>
+	</div>
+</div>
+
+<div class="container">
+	<%= will_paginate @anbieter, renderer: BootstrapPagination::Rails, bootstrap: 3  unless @anbieter.nil? %>
+
+<ul class="midi-list">
+	<% unless @anbieter.nil? %>
+  		<% @anbieter.each do |anbieter| %>
+    	<%= render "listed_anbieter", anbieter: anbieter %>
+  		<% end %>
+  	<% end %>
+</ul>
+
+<%= will_paginate @anbieter, renderer: BootstrapPagination::Rails, bootstrap: 3 unless @anbieter.nil? %>
+</div>
