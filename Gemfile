@@ -30,7 +30,7 @@ gem 'jbuilder', '~> 1.2'
 
 # Twitter CSS/SASS framework
 # gem 'bootstrap-sass','2.3.2.0'
-gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass', branch: '3'
+gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass', branch: 'master'
 # gem 'bootstrap-sass-rails'
 
 # Experimental Bootstrap 3 => http://gorails.com/blog/trying-out-bootstrap-3-0
