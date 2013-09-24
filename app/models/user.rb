@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
 	before_create :create_remember_token
 
 	has_many :comments, inverse_of: :user
+	# has_and_belongs_to_many :comments, as: :comment_ratings
 
 # TODO bessere Email regex
 	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i

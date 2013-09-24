@@ -33,25 +33,27 @@
 	<div class="container">
 		<%= will_paginate @comments, renderer: BootstrapPagination::Rails, bootstrap: 3  unless @comments.nil? %>
 
-		 <!-- Button trigger modal -->
-  <a data-toggle="modal" href="#myModal" class="btn btn-primary btn-lg">Diesen Anbieter kommentieren</a>
+<% if helper_signed_in? %>
+	<!-- Button trigger modal -->
+ 	<a data-toggle="modal" href="#comment" class="btn btn-primary btn-lg">Diesen Anbieter kommentieren</a>
 
-  <!-- Modal -->
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Kommentar zu <%= @anbieter.name %></h4>
-        </div>
-        <div class="modal-body">
-          <%= render 'comments/new' %>
-        </div>
-
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-
+	<!-- Modal -->
+	<div class="modal fade" id="comment" tabindex="-1" role="dialog" aria-labelledby="commentLabel" aria-hidden="true">
+	    <div class="modal-dialog">
+	    	<div class="modal-content">
+	        	<div class="modal-header">
+	          		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	          		<h4 class="modal-title">Kommentar zu <%= @anbieter.name %></h4>
+	        	</div>
+	        	<div class="modal-body">
+	          		<%= render 'comments/new' %>
+	        	</div>
+	      	</div><!-- /.modal-content -->
+	  	</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+<% else %>
+	<a data-toggle="modal" href="<%= anmelden_path %>" class="btn btn-primary btn-lg">Diesen Anbieter kommentieren</a>
+<% end %>
 		<ul class="midi-list">
 			<% if !@comments.empty? %>
 		  		<% @comments.each do |comment| %>

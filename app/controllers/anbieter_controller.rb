@@ -11,7 +11,6 @@ class AnbieterController < ApplicationController
 	end
 
 	def create
-		puts anbieter_params
 	    @anbieter = Anbieter.new(anbieter_params)
 	    if @anbieter.save
 			  flash[:success] = "#{@anbieter.name} wurde eingetragen".html_safe
@@ -25,7 +24,7 @@ class AnbieterController < ApplicationController
 	def show
 		@anbieter = Anbieter.find(params[:id].to_i)
 		if @anbieter
-			@comments = @anbieter.comments.paginate(page: params[:page], per_page: 10)
+			@comments = @anbieter.comments.paginate(page: params[:page], per_page: 10).order('created_at DESC')
 		end
 	end
 
